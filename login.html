@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lmap - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
+
+    <div class="auth-container">
+        <div class="brand-logo">Lmap</div>
+        <h1>Login</h1>
+
+        <form id="loginForm" onsubmit="event.preventDefault();">
+            <div class="input-group">
+                <input type="text" placeholder="Username" id="username" required>
+            </div>
+            <div class="input-group">
+                <input type="password" placeholder="Password" id="password" required>
+            </div>
+            <button type="button" class="btn btn-primary" id="loginButton">Login</button>
+        </form>
+        <p class="auth-redirect"><a href="forgot-password.html">Forgot Password?</a></p>
+        <p class="auth-redirect" style="margin-top: 10px;">Don't have an account? <a href="register.html">Register here</a></p>
+    </div>
+    <script>
+        // 🔒 פונקציית ההצפנה הרשמית SHA-256 המופעלת מקומית בדפדפן
+        async function hashSHA256(text) {
+            if (!text) return "";
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        const loginButton = document.getElementById('loginButton');
+
+        // 🔒 שלב הצפנת הלוגאין ושליחה לפלאסק
+        if (loginButton) {
+            loginButton.addEventListener('click', async function() {
+                const enteredUsername = document.getElementById('username').value.trim();
+                const enteredPassword = document.getElementById('password').value;
+
+                if (!enteredUsername || !enteredPassword) {
+                    alert('שגיאה: נא למלא את כל השדות!');
+                    return;
+                }
+
+                // מצפינים את הסיסמה שהוקלדה כעת כדי שהשרת יוכל להשוות אותה ל-Hash ב-MySQL
+                const encryptedPassword = await hashSHA256(enteredPassword);
+
+                fetch('http://localhost:5000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: enteredUsername,
+                        password: encryptedPassword
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`ברוך הבא ל-Lmap, ${data.username}! התחברת בהצלחה למערכת.`);
+                        // כאן בעתיד נעביר את המשתמש לדף הבית הפנימי (Dashboard)
+                    } else {
+                        alert('שגיאה: ' + data.message);
+                    }
+                })
+                .catch(error => console.error('Error during login:', error));
+            });
+        }
+    </script>
+</body>
+</html>

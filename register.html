@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lmap - Register</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
+
+    <div class="auth-container">
+        <div class="brand-logo">Lmap</div>
+        <h1>Create your account</h1>
+
+        <form id="registerForm" onsubmit="event.preventDefault();">
+            <!-- שלב א': פרטי המשתמש הרגילים -->
+            <div id="account-info-section">
+                <div class="input-group">
+                    <input type="text" placeholder="Username" id="reg-username" required>
+                </div>
+                <div class="input-group">
+                    <input type="email" placeholder="Email Address" id="email" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" placeholder="Password" id="reg-password" required>
+                </div>
+                <!-- רשימת וויזואלית הדינמית לחוקי הסיסמה -->
+                <div class="password-requirements">
+                    <p id="req-length" class="req-item invalid">✖ Between 6 to 15 characters</p>
+                    <p id="req-uppercase" class="req-item invalid">✖ At least one uppercase letter (A-Z)</p>
+                    <p id="req-number" class="req-item invalid">✖ At least one number (0-9)</p>
+                </div>
+                <div class="input-group">
+                    <input type="password" placeholder="Confirm Password" id="confirmPassword" required>
+                </div>
+                <button type="button" class="btn btn-primary" id="goToQuestionsBtn">Continue to Security Questions</button>
+            </div>
+
+            <!-- שלב ב': שרשרת 6 שאלות האבטחה -->
+            <div id="security-questions-section" style="display: none;">
+                <div style="background: rgba(231, 76, 60, 0.15); border: 1px solid #e74c3c; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 12px; color: #ff7675; text-align: left; line-height: 1.4;">
+                    ⚠️ <strong>Important Note:</strong> You must remember the exact answers to these 6 questions! They are strictly required to reset or change your password in the future.
+                </div>
+
+                <div class="question-container">
+                    <div class="step-question active" id="step-1">
+                        <input type="text" placeholder="1. What was the name of your first pet?" id="security-answer-1">
+                    </div>
+                    <div class="step-question" id="step-2" style="display: none;">
+                        <input type="text" placeholder="2. In what city were you born?" id="security-answer-2">
+                    </div>
+                    <div class="step-question" id="step-3" style="display: none;">
+                        <input type="text" placeholder="3. What was the name of your primary school?" id="security-answer-3">
+                    </div>
+                    <div class="step-question" id="step-4" style="display: none;">
+                        <input type="text" placeholder="4. What is your favorite food?" id="security-answer-4">
+                    </div>
+                    <div class="step-question" id="step-5" style="display: none;">
+                        <input type="text" placeholder="5. What is the name of your paternal grandfather?" id="security-answer-5">
+                    </div>
+                    <div class="step-question" id="step-6" style="display: none;">
+                        <input type="text" placeholder="6. What is your mother's maiden name?" id="security-answer-6">
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-primary" id="nextQuestionBtn" style="margin-top: 10px;">Next Question (1/6)</button>
+                <button type="button" class="btn btn-primary" id="finalSubmitBtn" style="display: none; margin-top: 10px;">Complete Registration</button>
+            </div>
+        </form>
+        <p class="auth-redirect">Already have an account? <a href="login.html">Login here</a></p>
+    </div>
+    <script>
+        //  פונקציית ההצפנה הרשמית SHA-256 המופעלת מקומית בדפדפן
+        async function hashSHA256(text) {
+            if (!text) return "";
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        const goToQuestionsBtn = document.getElementById('goToQuestionsBtn');
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        const finalSubmitBtn = document.getElementById('finalSubmitBtn');
+        let currentStep = 1;
+
+        // מעבר משלב החשבון לשלב השאלות
+        if (goToQuestionsBtn) {
+            goToQuestionsBtn.addEventListener('click', function() {
+                const regPassword = document.getElementById('reg-password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                if (regPassword !== confirmPassword) { alert('שגיאה: הסיסמאות אינן תואמות!'); return; }
+                if (regPassword.length < 6 || regPassword.length > 15 || !/[A-Z]/.test(regPassword) || !/[0-9]/.test(regPassword)) {
+                    alert('שגיאה: הסיסמה אינה עומדת בדרישות האבטחה!'); return;
+                }
+
+                document.getElementById('account-info-section').style.display = 'none';
+                document.getElementById('security-questions-section').style.display = 'block';
+            });
+        }
+
+        // ניהול המעבר בין ששת השאלות בשרשרת
+        if (nextQuestionBtn) {
+            nextQuestionBtn.addEventListener('click', function() {
+                const currentInput = document.getElementById(`security-answer-${currentStep}`);
+                if (!currentInput.value.trim()) {
+                    alert(`שגיאה: שאלה מספר ${currentStep} היא שדה חובה!`);
+                    return;
+                }
+
+                document.getElementById(`step-${currentStep}`).style.display = 'none';
+                currentStep++;
+                document.getElementById(`step-${currentStep}`).style.display = 'block';
+                nextQuestionBtn.innerText = `Next Question (${currentStep}/6)`;
+
+                if (currentStep === 6) {
+                    nextQuestionBtn.style.display = 'none';
+                    finalSubmitBtn.style.display = 'block';
+                }
+            });
+        }
+
+        // 🔒 הפעלת ההצפנה מקצה לקצה ושליחת הנתונים המוצפנים לשרת הפייתון
+        if (finalSubmitBtn) {
+            finalSubmitBtn.addEventListener('click', async function() {
+                const finalInput = document.getElementById('security-answer-6');
+                if (!finalInput.value.trim()) { alert('שגיאה: שאלה מספר 6 היא שדה חובה!'); return; }
+
+                const regUsername = document.getElementById('reg-username').value;
+                const email = document.getElementById('email').value;
+                const regPassword = document.getElementById('reg-password').value;
+
+                // גיבוב והצפנת המידע ב-SHA-256 לפני יציאתו מהדפדפן ברשת
+                const encryptedPassword = await hashSHA256(regPassword);
+                const encAns1 = await hashSHA256(document.getElementById('security-answer-1').value.trim().toLowerCase());
+                const encAns2 = await hashSHA256(document.getElementById('security-answer-2').value.trim().toLowerCase());
+                const encAns3 = await hashSHA256(document.getElementById('security-answer-3').value.trim().toLowerCase());
+                const encAns4 = await hashSHA256(document.getElementById('security-answer-4').value.trim().toLowerCase());
+                const encAns5 = await hashSHA256(document.getElementById('security-answer-5').value.trim().toLowerCase());
+                const encAns6 = await hashSHA256(document.getElementById('security-answer-6').value.trim().toLowerCase());
+
+                fetch('http://localhost:5000/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: regUsername,
+                        email: email,
+                        password: encryptedPassword,
+                        ans1: encAns1, ans2: encAns2, ans3: encAns3, ans4: encAns4, ans5: encAns5, ans6: encAns6
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('ההרשמה המאובטחת הצליחה! הנתונים הוצפנו ב-SHA256 ונשמרו ב-MySQL.');
+                        window.location.href = 'login.html';
+                    } else {
+                        alert('שגיאה: ' + data.message);
+                    }
+                });
+            });
+        }
+
+        // בדיקת חוזק סיסמה דינמית (משנה קלאסים של CSS)
+        const regPasswordInput = document.getElementById('reg-password');
+        const reqLength = document.getElementById('req-length');
+        const reqUppercase = document.getElementById('req-uppercase');
+        const reqNumber = document.getElementById('req-number');
+
+        if (regPasswordInput) {
+            regPasswordInput.addEventListener('input', function() {
+                const val = regPasswordInput.value;
+                if (val.length >= 6 && val.length <= 15) { reqLength.className = 'req-item valid'; reqLength.innerText = '✔ Between 6 to 15 characters'; }
+                else { reqLength.className = 'req-item invalid'; reqLength.innerText = '✖ Between 6 to 15 characters'; }
+                if (/[A-Z]/.test(val)) { reqUppercase.className = 'req-item valid'; reqUppercase.innerText = '✔ At least one uppercase letter (A-Z)'; }
+                else { reqUppercase.className = 'req-item invalid'; reqUppercase.innerText = '✖ At least one uppercase letter (A-Z)'; }
+                if (/[0-9]/.test(val)) { reqNumber.className = 'req-item valid'; reqNumber.innerText = '✔ At least one number (0-9)'; }
+                else { reqNumber.className = 'req-item invalid'; reqNumber.innerText = '✖ At least one number (0-9)'; }
+            });
+        }
+    </script>
+</body>
+</html>
