@@ -1,78 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html> <!-- מגדיר לדפדפן שהקובץ הוא מסוג HTML5 -->
+<html lang="en"> <!-- שפה אנגלית -->
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lmap - Login</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8"> <!-- מגדיר קידוד תווים אוניברסלי על מנת שכל השפות והסימנים יוצגו באופן תקין -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- הופך את האתר לקספונסיבי - מתאים למובייל ולמסמכים שונים -->
+    <title>Lmap - Login</title> <!-- קביעת כותבת שתופיע בלשונית של הדפדפן -->
+    <link rel="stylesheet" href="style.css"> <!--  מקשר את דף הHTML לקובץ העיצוב החיצוני (css)-->
 </head>
-<body>
-    <div class="background-shapes">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
-    </div>
+<body> <!-- תחילת גוף הדף, התכון שהמשתמש רואה על המסך -->
+    <div class="background-shapes"> <!-- תיבה ראשית שמחזיקה את האלמנטים העיצוביים של הרקע -->
+        <div class="shape shape-1"></div> <!-- צורה עיצובית ראשונה ברקע -->
+        <div class="shape shape-2"></div> <!-- צורה עיצובית שנייה ברקע -->
+    </div> <!-- סיום תיבת הרקע -->
 
-    <div class="auth-container">
-        <div class="brand-logo">Lmap</div>
-        <h1>Login</h1>
+    <div class="auth-container"> <!-- התיבה המרכזית שמחזיקה את כל תוכן הטופס -->
+        <div class="brand-logo">Lmap</div> <!-- מציג את שם המותג של האתר -->
+        <h1>Login</h1> <!-- כותרת -->
 
-        <form id="loginForm" onsubmit="event.preventDefault();">
-            <div class="input-group">
-                <input type="text" placeholder="Username" id="username" required>
+        <form id="loginForm" onsubmit="event.preventDefault();"> <!-- תחילת הטופס, מונע רענון אוטמתי של הדף בשליחה -->
+            <div class="input-group"> <!-- תיבה לקלט הראשון -->
+                <input type="text" placeholder="Username" id="username" required> <!-- שדה טקסט להזנת שם משתמש, שדה חובה -->
             </div>
-            <div class="input-group">
-                <input type="password" placeholder="Password" id="password" required>
+            <div class="input-group"> <!-- תיבה לקלט שני -->
+                <input type="password" placeholder="Password" id="password" required> <!-- שדה טקסט להזנת סיסמא, שדה חובה -->
             </div>
-            <button type="button" class="btn btn-primary" id="loginButton">Login</button>
+            <button type="button" class="btn btn-primary" id="loginButton">Login</button> <!-- כפתור המיועד להפעלה ידנית על ידי JS -->
         </form>
-        <p class="auth-redirect"><a href="forgot-password.html">Forgot Password?</a></p>
-        <p class="auth-redirect" style="margin-top: 10px;">Don't have an account? <a href="register.html">Register here</a></p>
+        <p class="auth-redirect"><a href="forgot-password.html">Forgot Password?</a></p> <!-- קישור למעבר לעמוד שינוי סיסמא -->
+        <p class="auth-redirect" style="margin-top: 10px;">Don't have an account? <a href="register.html">Register here</a></p> <!-- קישור למעבר לעמוד הרשמה -->
     </div>
-    <script>
-        // 🔒 פונקציית ההצפנה הרשמית SHA-256 המופעלת מקומית בדפדפן
-        async function hashSHA256(text) {
-            if (!text) return "";
-            const encoder = new TextEncoder();
-            const data = encoder.encode(text);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
+    <script> <!-- תחילת אזור קוד JS -->
+        //  פונקציית ההצפנה הרשמית SHA-256 המופעלת מקומית בדפדפן
+        async function hashSHA256(text) { //הגדרת פונקציה אסינכרונית שמקבלת טקסט
+            if (!text) return ""; // אם לא נשלח טקסט לפונקציה, היא תחזיר טקסט ריק ותעצור
+            const encoder = new TextEncoder(); // מייצר אוביייקט שממיר טקסט רגיל למערך של בתים בינאריים
+            const data = encoder.encode(text); // מבצע את ההמרה בפועל של הסיסמא שמתקבל למערך מספרים (בתים)
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data); // משתמש במנוע ההצפנה המובנה של הדפדפן על מנת להצפין את המידע בפורמט SHA256
+            const hashArray = Array.from(new Uint8Array(hashBuffer)); // ממיר את תוצאת ההצפנה למערך של מספרים רגילים שניתן לעבוד איתם בJS
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // הופך את מערך המספרים למחרוזת טקסט ארוכה בבסיס 16 ומחזיר אותה
+        } // סיום פונקציית הצפנה
 
-        const loginButton = document.getElementById('loginButton');
+        const loginButton = document.getElementById('loginButton'); // תופס את אלמנט כפתור ההתחברות ושומר אותו במשתנה HTML
 
-        // 🔒 שלב הצפנת הלוגאין ושליחה לפלאסק
-        if (loginButton) {
-            loginButton.addEventListener('click', async function() {
-                const enteredUsername = document.getElementById('username').value.trim();
-                const enteredPassword = document.getElementById('password').value;
+        //  שלב הצפנת הלוגאין ושליחה לפלאסק
+        if (loginButton) { // בודק שהכפתור באמת קיים בדף לפני שמנסים להשתמש בו
+            loginButton.addEventListener('click', async function() { // מגדיר "מאזין אירועים" קוד שירוץ אוטומטית בכל פעם שהמשתמש יקליק על הכפתור
+                const enteredUsername = document.getElementById('username').value.trim(); // לוקח את הערך שהוקלד בשדה שם המשתמש ומנקה רווחים מיותרים מהקצוות
+                const enteredPassword = document.getElementById('password').value; // לוקח את הסיסמא המקורית שהוקלדה בשדה הסיסמא
 
-                if (!enteredUsername || !enteredPassword) {
-                    alert('שגיאה: נא למלא את כל השדות!');
-                    return;
+                if (!enteredUsername || !enteredPassword) { // תנאי הבודק אם אחד מהשדות או שניהם נשארו ריקים
+                    alert('שגיאה: נא למלא את כל השדות!'); // מציג חלונית קופצת עם הודעת שגיאה למשתמש
+                    return; // עוצר את המשך ריצת הפונקציה ולא מאפשר לקוד להמשיך לשלב השליחה
                 }
 
-                // מצפינים את הסיסמה שהוקלדה כעת כדי שהשרת יוכל להשוות אותה ל-Hash ב-MySQL
-                const encryptedPassword = await hashSHA256(enteredPassword);
+                // מצפינים את הסיסמה שהוקלדה כדי שהשרת יוכל להשוות אותה ל-Hash ב-MySQL
+                const encryptedPassword = await hashSHA256(enteredPassword); // שולח את הסיסמא לפונקציית ההצפנה וממתין לקבלת הHASH המוצפן
 
-                fetch('http://localhost:5000/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        username: enteredUsername,
-                        password: encryptedPassword
+                fetch('http://localhost:5000/api/login', { // פותח בקשת רשת המקומי (flask) של שרת הפלסק - ושולח אותה לכתובת הAPI (fetch)
+                    method: 'POST', // מגדיר שסוג הבקשה היא POST (משמש לשליחת נתונים חדשים או רגישים לשרת)
+                    headers: { 'Content-Type': 'application/json' }, // מעדכן את השרת שהמידע שנשלח אליו מגיע בפורמט מסוג JSON
+                    body: JSON.stringify({ // לקיחת מידע והפיכה שלו מאובייקט למחרוזת
+                        username: enteredUsername, // צירוף שם משתמש שנאסף מהשדה
+                        password: encryptedPassword // צירוף סיסמא מוצפנת
                     })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(`ברוך הבא ל-Lmap, ${data.username}! התחברת בהצלחה למערכת.`);
-                        // כאן בעתיד נעביר את המשתמש לדף הבית הפנימי (Dashboard)
+                .then(response => response.json()) // המרת תשובת השרת ממחרוזת לאובייקט
+                .then(data => { // קבלת נתונים מתורגמים
+                    if (data.success) { // תנאי הבודק אם ההתחברות לשרת הצליחה
+                        alert(`ברוך הבא ל-Lmap, ${data.username}! התחברת בהצלחה למערכת.`); // הקפצת הודעה למשתמש
+                        // כאן בעתיד אעביר את המשתמש לדף הבית הפנימי (Dashboard)
                     } else {
-                        alert('שגיאה: ' + data.message);
+                        alert('שגיאה: ' + data.message); // הצגת חלונית שגיאה עם הסיבה שקיבלתי מהשרת
                     }
                 })
-                .catch(error => console.error('Error during login:', error));
+                .catch(error => console.error('Error during login:', error)); // מנגנון הגנה, תפיסת שגיאות חרגישות והדפסה שלהן
             });
         }
     </script>

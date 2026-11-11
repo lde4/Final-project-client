@@ -1,5 +1,5 @@
-[project]
-name = "pythonproject"
-version = "0.1.0"
-requires-python = ">=3.14"
-dependencies = []
+[project] # הגדרת קטגוריה חדשה בקובץ
+name = "pythonproject" # קביעת שם רשמי של הפרויקט
+version = "0.1.0" # מספר גרסא נוכחי של הפרויקט
+requires-python = ">=3.14" # קביעה שקוד הפייתון דורש גרסת פייתון 3.14
+dependencies = [] # פירוט של החבילות והספריות החיצוניות שהפרויקט צריך על מנת לעבוד

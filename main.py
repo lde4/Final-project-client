@@ -1,16 +1,8 @@
-# This is a sample Python script.
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def print_hi(name): #הגדרת פונקציה חדשה, מחכה למשתנה ותשמור אותו כname
+    print(f'Hi, {name}')  # הדפסת טקטס למסך, תחליף את name בתוכן האובייקט
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+if __name__ == '__main__': #בדיקה האם הקובץ הנוכחי הוא הקובץ הראשי
+    print_hi('PyCharm') # הפעלת הפונקציה שהגדרנו למעלה
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/

@@ -1,6 +1,6 @@
 # קובץ client_bridge.py - פרויקט הלקוח
 import socket  #ייבוא הספרייה המובנית של פייתון לניהול רשתות ותקשורת
-import json    #ייבוא הספרייה שמטפלת במבנה הנתונים JSON (JavaScript Object Notation)
+import json    #ייבוא הספרייה שמטפלת במבנה הנתונים JSON
 
 
 def send_data_via_pure_socket(action_type, data_dict): #הגדרת פונקציה אסינכרונית/כללית שמקבלת שני פרמטרים
@@ -22,10 +22,10 @@ def send_data_via_pure_socket(action_type, data_dict): #הגדרת פונקצי�
 
         # 5. קבלת התשובה והאימות מהשרת דרך הסוקט
         server_response = client_socket.recv(4096) #הלקוח מחכה לתשובה חוזרת מהשרת
-        response_json = json.loads(server_response.decode('utf-8'))
+        response_json = json.loads(server_response.decode('utf-8')) #פעולה הפוכה
 
-        client_socket.close()  # סגירת הסוקט
-        return response_json
+        client_socket.close()  # סגירה של תקשורת ה-TCP מול השרת
+        return response_json   #החזרת אובייקט תשובה, על מנת שהדף ידע להעביר עמוד או להעלות הודעה
 
     except Exception as e:
-        return {'success': False, 'message': f'Socket error: {e}'}
+        return {'success': False, 'message': f'Socket error: {e}'} # טיפול בשגיאות אם יש
